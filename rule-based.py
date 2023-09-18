@@ -6,7 +6,7 @@ import gym_super_mario_bros
 
 #Code for a simple rule based agent
 
-#Code for rule based agent, takes 
+#Code for rule based agent, takes observation and info
 def rule_based_agent(observation, info):
     #Extract relevant information from the observation
     #Observation is actual RGB pixel image of what you'll see on the screen
