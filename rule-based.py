@@ -15,7 +15,8 @@ def rule_based_agent(observation, info):
     player_y = info['y_pos']
 
     #Define some basic rules
-    if player_x >10: #Jump if Mario is above the ground
+
+    if player_x >10  : #Jump if Mario is above the ground
         return 2 #2 corresponds to jump action
     else:       #Default action
         return 1 #corresponds to go right action
