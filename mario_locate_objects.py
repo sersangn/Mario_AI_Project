@@ -14,7 +14,7 @@ import string
 ################################################################################
 
 # change these values if you want more/less printing
-PRINT_GRID      = True
+PRINT_GRID      = False
 PRINT_LOCATIONS = False
 
 # If printing the grid doesn't display in an understandable way, change the
