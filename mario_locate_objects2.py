@@ -55,8 +55,9 @@ image_files = {
         "koopa": ["koopaA.png", "koopaB.png"],
     },
     "block": {
-        "block": ["block1.png", "block2.png", "block3.png","block4.png"],
-        # "stair":["block4.png"],
+        "block": ["block1.png", "block3.png"],
+        "floorblock":["block2.png"],
+        "stair":["block4.png"],
         "question_block": ["questionA.png", "questionB.png", "questionC.png"],
         "pipe": ["pipe_upper_section.png", "pipe_lower_section.png"],
     },
@@ -388,10 +389,21 @@ def make_action(screen, info, step, env, prev_action):
     if step % 20 == 0:
         if prev_action == 2:
             action = 0
+    floor = []
+    for block in block_locations:
+        if block[2]=="floorblock":
+            floor.append(block)
+
+    # for floors in floor:
+    #     if floors[0][0]==0:
+    #         print(floor)
     
-    # for block in block_locations:
-    #     if block[0][0]==0 and block[0][1]==0:
-    #         print(block_locations)
+    if len(floor) == 26:
+        # print(floor)
+        print(floor[0][0][0])
+        if floor[0][0][0]==13:
+            print("here!!!")
+            action=4
 
     
     ####Trying out going left if stuck --> come back to this
@@ -407,7 +419,7 @@ def make_action(screen, info, step, env, prev_action):
     # if left:
     #     action =6
     # print(mario_locations)
-    print(len(block_locations))
+
     return action
 
 ################################################################################
@@ -429,5 +441,6 @@ for step in range(100000):
     obs, reward, terminated, truncated, info = env.step(action)
     done = terminated or truncated
     if done:
+        print("dead")
         env.reset()
 env.close()
