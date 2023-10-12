@@ -367,7 +367,7 @@ def make_action(screen, info, step, env, prev_action):
                 
     if len(enemy_locations)>0:
         if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50):
-            action=2
+            action=4
     if pipe:
         for pipeindex in pipelist:
             # print("pipe", pipeindex, block_locations[pipeindex])
@@ -377,62 +377,38 @@ def make_action(screen, info, step, env, prev_action):
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
                 # #print(block_locations)
                 # print("pipe!!!")
-                action=4
+                action=2
             # print(action)
 
-    # if action ==2:
-    #     print("jump")
-    #     print(action)
-    #     print(mario_locations)
-
-
+    #Stops mario from jumping twice 
     if step % 10 == 0:
         if prev_action == 4:
             action = 0
+        # print(mario_locations)
+    if step % 20 == 0:
+        if prev_action == 2:
+            action = 0
     
-    left = False
-    if step %30 ==0:
-        prevlocation= mario_locations
-        if mario_locations[0][0][0]- prevlocation[0][0][0] <5:
-            action = 6
-            left = True
-            print(action)
-        else:
-            left = False
+    # for block in block_locations:
+    #     if block[0][0]==0 and block[0][1]==0:
+    #         print(block_locations)
 
-    # if mario_locations[0][0][1]<160:
-    #     action = 0
-    if left:
-        action =6
+    
+    ####Trying out going left if stuck --> come back to this
+    # if step%30==0:
+    #     prevlocation= mario_locations
+    #     if mario_locations[0][0][0]-prevlocation[0][0][0]<3:
+    #         print(prevlocation)
+    #         print(mario_locations)
+    #         action = 6
 
-    action =6
+    # # if mario_locations[0][0][1]<160:
+    # #     action = 0
+    # if left:
+    #     action =6
+    # print(mario_locations)
+    print(len(block_locations))
     return action
-    # if step % 10 == 0:
-    #     # I have no strategy at the moment, so I'll choose a random action.
-    #     action = 1
-    #     pipeindex = 0
-    #     pipe = False
-    #     for index, element in enumerate(block_locations):
-    #             if 'pipe' in element:
-    #                 pipe = True
-    #                 pipeindex = index
-        
-    #     if len(enemy_locations)>0:
-    #         if(mario_locations[0][0][0]-enemy_locations[0][0][0]<200):
-    #             action=2
-    #     elif pipe:
-    #         if(mario_locations[0][0][0]-block_locations[pipeindex][0][0]<10):
-    #             action=4
-    #     return action
-    # else:
-    #     action = 1
-    #     if pipe:
-    #         action=4
-    #     # With a random agent, I found that choosing the same random action
-    #     # 10 times in a row leads to slightly better performance than choosing
-    #     # a new random action every step.
-    #     #return prev_action
-    #     return action
 
 ################################################################################
 
@@ -448,7 +424,8 @@ for step in range(100000):
     if obs is not None:
         action = make_action(obs, info, step, env, action)
     else:
-        action = env.action_space.sample()
+        #action = env.action_space.sample()
+        action = 1
     obs, reward, terminated, truncated, info = env.step(action)
     done = terminated or truncated
     if done:
