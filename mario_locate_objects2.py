@@ -255,7 +255,7 @@ def locate_objects(screen, mario_status):
 ################################################################################
 # GETTING INFORMATION AND CHOOSING AN ACTION
 
-def make_action(screen, info, step, env, prev_action):
+def make_action(screen, info, step, env, prev_action,gaps):
     mario_status = info["status"]
     object_locations = locate_objects(screen, mario_status)
 
@@ -367,7 +367,8 @@ def make_action(screen, info, step, env, prev_action):
                 pipelist.append(index)
                 
     if len(enemy_locations)>0:
-        if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50):
+        #print(enemy_locations)
+        if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy_locations[0][0][0]) and (enemy_locations[0][0][1]==193) :
             action=4
     if pipe:
         for pipeindex in pipelist:
@@ -397,13 +398,17 @@ def make_action(screen, info, step, env, prev_action):
     # for floors in floor:
     #     if floors[0][0]==0:
     #         print(floor)
-    
-    if len(floor) == 26:
+    if len(floor) <= 26:
         # print(floor)
-        print(floor[0][0][0])
-        if floor[0][0][0]==13:
-            print("here!!!")
+        # print(floor)
+        gap+=1
+        print(floor)
+        if gap>20:
             action=4
+            return action
+        # if floor[0][0][0]==13:
+        #     # print("here!!!")
+        #     action=4
 
     
     ####Trying out going left if stuck --> come back to this
@@ -432,9 +437,10 @@ state = env.reset()
 obs = None
 done = True
 env.reset()
+gap = 0
 for step in range(100000):
     if obs is not None:
-        action = make_action(obs, info, step, env, action)
+        action = make_action(obs, info, step, env, action,gap)
     else:
         #action = env.action_space.sample()
         action = 1

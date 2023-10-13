@@ -30,7 +30,7 @@ env = DummyVecEnv([lambda: env])
 env = VecFrameStack(env, 4, channels_order='last')
 
 JoypadSpace.reset = lambda self, **kwargs: self.env.reset(**kwargs)
-#assuming a more up to date verison of gym, calling reset on environment with a random seed
+#assuming a more up to date verison of gym, calling reset on environment with a random seed value
 class TrainAndLoggingCallback(BaseCallback):
 
     def __init__(self, check_freq, save_path, verbose=1):
@@ -49,21 +49,25 @@ class TrainAndLoggingCallback(BaseCallback):
 
         return True
     
-CHECKPOINT_DIR = './train/'
-LOG_DIR = './logs/'
+CHECKPOINT_DIR = './learning-rate-old-copy/train/'
+LOG_DIR = './learning-rate-old-copy//logs/'
 
 # Setup model saving callback
 callback = TrainAndLoggingCallback(check_freq=50000, save_path=CHECKPOINT_DIR)
 # This is the AI model started
-model = PPO('CnnPolicy', env, verbose=1, tensorboard_log=LOG_DIR, learning_rate=0.00001, 
+model = PPO('CnnPolicy', env, verbose=1, tensorboard_log=LOG_DIR, learning_rate=0.000001, 
             n_steps=512) 
 
-# Train the AI model, this is where the AI model starts to learn
+# # Train the AI model, this is where the AI model starts to learn
+# model.learn(total_timesteps=16000000, callback=callback)
+# model.save('Finalmodel')
+
+# # Load model
+model = PPO.load('./learning-rate-old-copy/train/best_model_40000.zip')
+model.set_env(env)
 model.learn(total_timesteps=16000000, callback=callback)
 model.save('Finalmodel')
 
-# # Load model
-# # model = PPO.load('./train/best_model_50000.zip',tensorboard_log=LOG_DIR)
 # model.set_env(env)
 # model.learn(total_timesteps=16000000, callback=callback)
 # model.save('thisisatestmodel')
