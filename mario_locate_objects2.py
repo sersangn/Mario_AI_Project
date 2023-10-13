@@ -50,9 +50,12 @@ image_files = {
         # Note: Many images are missing from tall mario, and I don't have any
         # images for fireball mario.
     },
+    # "sky":{
+    #     "sky":["sky.png"] ###incase i want to try the sky method
+    # },
     "enemy": {
         "goomba": ["goomba.png"],
-        "koopa": ["koopaA.png", "koopaB.png"],
+        "koopa": ["koopaA.png", "koopaB.png","koopaC.png", "koopaD.png"],
     },
     "block": {
         "block": ["block1.png", "block3.png"],
@@ -362,28 +365,41 @@ def make_action(screen, info, step, env, prev_action,gap):
     pipe = False
     for index, element in enumerate(block_locations):
             if 'pipe' in element:
-                # print("PIPE", element)
                 pipe = True
                 pipelist.append(index)
                 
     if len(enemy_locations)>0:
-        #print(enemy_locations)
-        if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy_locations[0][0][0]) and (enemy_locations[0][0][1]==193) :
-            action=4
-            print(enemy_locations)
+        for enemy in enemy_locations:
+            if enemy[0][0]>mario_locations[0][0][0]:
+                if(enemy[0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]<=193) :
+                    print(enemy)
+                    print(mario_locations)
+                    action=4
     if pipe:
         for pipeindex in pipelist:
             # print("pipe", pipeindex, block_locations[pipeindex]) 
             if block_locations[pipeindex][0][0]<mario_locations[0][0][0]:
-                # print("skip")
                 continue
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
-                # #print(block_locations)
-                # print("pipe!!!")
                 action=2
-            # print(action)
+    botlevel = []
+    for block in block_locations:
+        if block[2]=="floorblock" and block[0][1]==224:
+            botlevel.append(block)
+    #got some exception error but program continued... might introduce errors later
 
-    #Stops mario from jumping twice 
+
+    ###GAP CODE
+    if len(botlevel) <= 13:
+        prevblock = botlevel[0]
+        for block in botlevel:
+            if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
+                if prevblock[0][0]+16 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+                    print("HERE")
+                    action= 4
+            prevblock= block
+        #Stops mario from jumping twice 
+
     if step % 10 == 0:
         if prev_action == 4:
             action = 0
@@ -391,30 +407,6 @@ def make_action(screen, info, step, env, prev_action,gap):
     if step % 20 == 0:
         if prev_action == 2:
             action = 0
-    
-    # floor = []
-    # for block in block_locations:
-    #     if block[2]=="floorblock" and block[0][1]==208:
-    #         floor.append(block)
-
-    botlevel = []
-    for block in block_locations:
-        if block[2]=="floorblock" and block[0][1]==224:
-            botlevel.append(block)
-    #got some exception error but program continued... might introduce errors later
-
-    if len(botlevel) <= 13:
-        prevblock = botlevel[0]
-        for block in botlevel:
-            if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
-                # range = block[0][0]-prevblock[0][0]
-                if prevblock[0][0]+16 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
-                    action = 2
-                    # print("PREV", prevblock, "MARIO", mario_locations, "BLOCK", block)
-                    # print("GAP")
-                    # print(action)
-                    return action, gap
-            prevblock= block
 
     # for floors in floor:
     #     if floors[0][0]==0:
@@ -423,7 +415,7 @@ def make_action(screen, info, step, env, prev_action,gap):
     # print("FLOOR", botlevel)
     #######NEW GAP METHOD#####
 
-    ######OLD GAP METHOD
+    # #####OLD GAP METHOD
     # if len(floor) <= 26:
     #     gap=gap+1
     #     if gap>20:
