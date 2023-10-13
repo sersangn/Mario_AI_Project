@@ -10,7 +10,6 @@ import string
 
 # Template matching is based on this tutorial:
 # https://docs.opencv.org/4.x/d4/dc6/tutorial_py_template_matching.html
-
 ################################################################################
 
 # change these values if you want more/less printing
@@ -378,6 +377,8 @@ def make_action(screen, info, step, env, prev_action):
 
 env = gym.make("SuperMarioBros-v0", apply_api_compatibility=True, render_mode="human")
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
+
+print(SIMPLE_MOVEMENT)
 
 obs = None
 done = True

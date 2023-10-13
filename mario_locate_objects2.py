@@ -50,9 +50,12 @@ image_files = {
         # Note: Many images are missing from tall mario, and I don't have any
         # images for fireball mario.
     },
+    # "sky":{
+    #     "sky":["sky.png"] ###incase i want to try the sky method
+    # },
     "enemy": {
         "goomba": ["goomba.png"],
-        "koopa": ["koopaA.png", "koopaB.png"],
+        "koopa": ["koopaA.png", "koopaB.png","koopaC.png", "koopaD.png"],
     },
     "block": {
         "block": ["block1.png", "block3.png"],
@@ -255,7 +258,7 @@ def locate_objects(screen, mario_status):
 ################################################################################
 # GETTING INFORMATION AND CHOOSING AN ACTION
 
-def make_action(screen, info, step, env, prev_action):
+def make_action(screen, info, step, env, prev_action,gap):
     mario_status = info["status"]
     object_locations = locate_objects(screen, mario_status)
 
@@ -356,32 +359,47 @@ def make_action(screen, info, step, env, prev_action):
     #step variable -- tells you what time, step+10
 
         # I have no strategy at the moment, so I'll choose a random action.
-    action = 1
+    action = 3
     pipeindex = 0
     pipelist = []
     pipe = False
     for index, element in enumerate(block_locations):
             if 'pipe' in element:
-                # print("PIPE", element)
                 pipe = True
                 pipelist.append(index)
                 
     if len(enemy_locations)>0:
-        if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50):
-            action=4
+        for enemy in enemy_locations:
+            if enemy[0][0]>mario_locations[0][0][0]:
+                if(enemy[0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]<=193) :
+                    print(enemy)
+                    print(mario_locations)
+                    action=4
     if pipe:
         for pipeindex in pipelist:
-            # print("pipe", pipeindex, block_locations[pipeindex])
+            # print("pipe", pipeindex, block_locations[pipeindex]) 
             if block_locations[pipeindex][0][0]<mario_locations[0][0][0]:
-                # print("skip")
                 continue
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
-                # #print(block_locations)
-                # print("pipe!!!")
                 action=2
-            # print(action)
+    botlevel = []
+    for block in block_locations:
+        if block[2]=="floorblock" and block[0][1]==224:
+            botlevel.append(block)
+    #got some exception error but program continued... might introduce errors later
 
-    #Stops mario from jumping twice 
+
+    ###GAP CODE
+    if len(botlevel) <= 13:
+        prevblock = botlevel[0]
+        for block in botlevel:
+            if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
+                if prevblock[0][0]+16 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+                    print("HERE")
+                    action= 4
+            prevblock= block
+        #Stops mario from jumping twice 
+
     if step % 10 == 0:
         if prev_action == 4:
             action = 0
@@ -389,22 +407,30 @@ def make_action(screen, info, step, env, prev_action):
     if step % 20 == 0:
         if prev_action == 2:
             action = 0
-    floor = []
-    for block in block_locations:
-        if block[2]=="floorblock":
-            floor.append(block)
 
     # for floors in floor:
     #     if floors[0][0]==0:
     #         print(floor)
-    
-    if len(floor) == 26:
-        # print(floor)
-        print(floor[0][0][0])
-        if floor[0][0][0]==13:
-            print("here!!!")
-            action=4
+    # print("MARIO", mario_locations)
+    # print("FLOOR", botlevel)
+    #######NEW GAP METHOD#####
 
+    # #####OLD GAP METHOD
+    # if len(floor) <= 26:
+    #     gap=gap+1
+    #     if gap>20:
+    #         action=4
+    #         print("FLOOR", floor)
+    #         print("LENGTH", len(floor))
+    #         print("MARIO", mario_locations)
+    #         return action, gap
+    #     # if floor[0][0][0]==13:
+    #     #     # print("here!!!")
+    #     #     action=4
+
+    # ##This parameter is good cause it makes mario jump right before the gap somehow
+    # if len(floor) > 28:
+    #     gap = 0
     
     ####Trying out going left if stuck --> come back to this
     # if step%30==0:
@@ -418,9 +444,8 @@ def make_action(screen, info, step, env, prev_action):
     # #     action = 0
     # if left:
     #     action =6
-    # print(mario_locations)
-
-    return action
+    print(action)
+    return action, gap
 
 ################################################################################
 
@@ -432,9 +457,11 @@ state = env.reset()
 obs = None
 done = True
 env.reset()
+gap = 0
 for step in range(100000):
     if obs is not None:
-        action = make_action(obs, info, step, env, action)
+        gap = make_action(obs, info, step, env, action, gap)[1]
+        action = make_action(obs, info, step, env, action, gap)[0]
     else:
         #action = env.action_space.sample()
         action = 1
@@ -442,5 +469,6 @@ for step in range(100000):
     done = terminated or truncated
     if done:
         print("dead")
+        gap = 0
         env.reset()
 env.close()
