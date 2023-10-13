@@ -255,7 +255,7 @@ def locate_objects(screen, mario_status):
 ################################################################################
 # GETTING INFORMATION AND CHOOSING AN ACTION
 
-def make_action(screen, info, step, env, prev_action,gaps):
+def make_action(screen, info, step, env, prev_action,gap):
     mario_status = info["status"]
     object_locations = locate_objects(screen, mario_status)
 
@@ -356,7 +356,7 @@ def make_action(screen, info, step, env, prev_action,gaps):
     #step variable -- tells you what time, step+10
 
         # I have no strategy at the moment, so I'll choose a random action.
-    action = 1
+    action = 3
     pipeindex = 0
     pipelist = []
     pipe = False
@@ -369,10 +369,11 @@ def make_action(screen, info, step, env, prev_action,gaps):
     if len(enemy_locations)>0:
         #print(enemy_locations)
         if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy_locations[0][0][0]) and (enemy_locations[0][0][1]==193) :
-            action=4
+            action=2
+            print("GOOMBA")
     if pipe:
         for pipeindex in pipelist:
-            # print("pipe", pipeindex, block_locations[pipeindex])
+            # print("pipe", pipeindex, block_locations[pipeindex]) 
             if block_locations[pipeindex][0][0]<mario_locations[0][0][0]:
                 # print("skip")
                 continue
@@ -380,6 +381,7 @@ def make_action(screen, info, step, env, prev_action,gaps):
                 # #print(block_locations)
                 # print("pipe!!!")
                 action=2
+                print("PIPE")
             # print(action)
 
     #Stops mario from jumping twice 
@@ -401,15 +403,19 @@ def make_action(screen, info, step, env, prev_action,gaps):
     if len(floor) <= 26:
         # print(floor)
         # print(floor)
-        gap+=1
-        print(floor)
+        gap=gap+1
+        # print(floor)
+        print(action)
+        # print(gap)
         if gap>20:
-            action=4
-            return action
+            action=2
+            print("GAP")
+            return action, gap
         # if floor[0][0][0]==13:
         #     # print("here!!!")
         #     action=4
-
+    if len(floor) > 29:
+        gap = 0
     
     ####Trying out going left if stuck --> come back to this
     # if step%30==0:
@@ -425,7 +431,7 @@ def make_action(screen, info, step, env, prev_action,gaps):
     #     action =6
     # print(mario_locations)
 
-    return action
+    return action, gap
 
 ################################################################################
 
@@ -440,7 +446,8 @@ env.reset()
 gap = 0
 for step in range(100000):
     if obs is not None:
-        action = make_action(obs, info, step, env, action,gap)
+        gap = make_action(obs, info, step, env, action, gap)[1]
+        action = make_action(obs, info, step, env, action, gap)[0]
     else:
         #action = env.action_space.sample()
         action = 1
@@ -448,5 +455,6 @@ for step in range(100000):
     done = terminated or truncated
     if done:
         print("dead")
+        gap = 0
         env.reset()
 env.close()
