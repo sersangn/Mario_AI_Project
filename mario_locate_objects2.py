@@ -369,8 +369,8 @@ def make_action(screen, info, step, env, prev_action,gap):
     if len(enemy_locations)>0:
         #print(enemy_locations)
         if(enemy_locations[0][0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy_locations[0][0][0]) and (enemy_locations[0][0][1]==193) :
-            action=2
-            print("GOOMBA")
+            action=4
+            print(enemy_locations)
     if pipe:
         for pipeindex in pipelist:
             # print("pipe", pipeindex, block_locations[pipeindex]) 
@@ -381,7 +381,6 @@ def make_action(screen, info, step, env, prev_action,gap):
                 # #print(block_locations)
                 # print("pipe!!!")
                 action=2
-                print("PIPE")
             # print(action)
 
     #Stops mario from jumping twice 
@@ -392,30 +391,54 @@ def make_action(screen, info, step, env, prev_action,gap):
     if step % 20 == 0:
         if prev_action == 2:
             action = 0
-    floor = []
+    
+    # floor = []
+    # for block in block_locations:
+    #     if block[2]=="floorblock" and block[0][1]==208:
+    #         floor.append(block)
+
+    botlevel = []
     for block in block_locations:
-        if block[2]=="floorblock":
-            floor.append(block)
+        if block[2]=="floorblock" and block[0][1]==224:
+            botlevel.append(block)
+    #got some exception error but program continued... might introduce errors later
+
+    if len(botlevel) <= 13:
+        prevblock = botlevel[0]
+        for block in botlevel:
+            if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
+                # range = block[0][0]-prevblock[0][0]
+                if prevblock[0][0]+16 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+                    action = 2
+                    # print("PREV", prevblock, "MARIO", mario_locations, "BLOCK", block)
+                    # print("GAP")
+                    # print(action)
+                    return action, gap
+            prevblock= block
 
     # for floors in floor:
     #     if floors[0][0]==0:
     #         print(floor)
-    if len(floor) <= 26:
-        # print(floor)
-        # print(floor)
-        gap=gap+1
-        # print(floor)
-        print(action)
-        # print(gap)
-        if gap>20:
-            action=2
-            print("GAP")
-            return action, gap
-        # if floor[0][0][0]==13:
-        #     # print("here!!!")
-        #     action=4
-    if len(floor) > 29:
-        gap = 0
+    # print("MARIO", mario_locations)
+    # print("FLOOR", botlevel)
+    #######NEW GAP METHOD#####
+
+    ######OLD GAP METHOD
+    # if len(floor) <= 26:
+    #     gap=gap+1
+    #     if gap>20:
+    #         action=4
+    #         print("FLOOR", floor)
+    #         print("LENGTH", len(floor))
+    #         print("MARIO", mario_locations)
+    #         return action, gap
+    #     # if floor[0][0][0]==13:
+    #     #     # print("here!!!")
+    #     #     action=4
+
+    # ##This parameter is good cause it makes mario jump right before the gap somehow
+    # if len(floor) > 28:
+    #     gap = 0
     
     ####Trying out going left if stuck --> come back to this
     # if step%30==0:
@@ -429,8 +452,7 @@ def make_action(screen, info, step, env, prev_action,gap):
     # #     action = 0
     # if left:
     #     action =6
-    # print(mario_locations)
-
+    print(action)
     return action, gap
 
 ################################################################################
