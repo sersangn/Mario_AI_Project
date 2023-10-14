@@ -8,6 +8,7 @@ from PIL import Image
 import numpy as np
 from numpy import asarray
 from matplotlib import image as img
+import game_simple
 
 env = gym.make('SuperMarioBros-v0', apply_api_compatibility=True, render_mode="human")
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
@@ -18,21 +19,42 @@ state = env.reset()
 plt.imshow(state[0])
 ugh = state[0][-16:][:, :16]
 
-print(ugh)
+new_state = game_simple.get_simple_game_state(state)
 
 
+# ugh2 = state[0][-16:][0:,:16]
+
+# print(ugh2)
+
+# block = game_simple.get_block()
+
+# if(block == state):
+#     print("yes")
+# else:
+#     print("shit")
+
+# print(ugh)
+
+# print("######")
+
+# # print(block)
+
+# block = np.asarray(block)
+
+# if (ugh == block).all():
+#     print("YES")
+# else:
+#     print("FUCK")
+
+# image = Image.open('block2.png')
 
 
-print("######")
-
-image = Image.open('block2.png')
-
-data = asarray(image)
+# data = asarray(image)
 
 data = np.dot(data[...,:3],[.2989, .5870, .1140])
 data = np.round(data).astype(np.uint8)
 
-print(data)
+# print(data)
 
 
 

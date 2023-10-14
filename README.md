@@ -29,6 +29,11 @@ pip install nes-py
 On Linux there we also had an issue that was resolved after running:
 
 ```
-conda install -c libgcc-ng
+conda install -c conda-forge libstdcxx-ng
 ```
 
+
+## ???
+
+wheel==0.38.4
+setuptools==66
