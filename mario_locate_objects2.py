@@ -369,10 +369,17 @@ def make_action(screen, info, step, env, prev_action,gap):
     ##Code for jumping according to enemy locations
     if len(enemy_locations)>0:
         for enemy in enemy_locations:
+            print("in loop!!!!")
             print(enemy)
             print(mario_locations)
             if enemy[0][0]>mario_locations[0][0][0]:
-                if(enemy[0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]>=193):
+                print("in 1st if")
+                print("ENEMY LOCATION:", enemy[0][0])
+                print(enemy[2],"HEIGHT", enemy[0][1])
+                print("ITS A MEE MARIO: ", "X" , mario_locations[0][0][0], "Y", mario_locations[0][0][1])
+                if(enemy[0][0]-mario_locations[0][0][0]<50) and (enemy[0][1]>=180):
+                    print("in 2nd if")
+                    print("HEREEEEEEEE")
                     action=4
 
     #-------------------PIPE CODE-------------------#
