@@ -372,8 +372,6 @@ def make_action(screen, info, step, env, prev_action,gap):
         for enemy in enemy_locations:
             if enemy[0][0]>mario_locations[0][0][0]:
                 if(enemy[0][0]-mario_locations[0][0][0]<40) and (enemy[0][1]>=180) and mario_locations[0][0][0] <= enemy[0][0]:
-                    print("IN SECOND IF", enemy)
-                    print("MARIO", mario_locations)
                     action=4
 
     #-------------------PIPE CODE-------------------#
@@ -396,9 +394,12 @@ def make_action(screen, info, step, env, prev_action,gap):
 
     #-------------------DEALING WITH GAPS CODE-------------------#
     botlevel = []
+    stairs = []
     for block in block_locations:
         if block[2]=="floorblock" and block[0][1]==224:
             botlevel.append(block)
+        if block[2]=="stair":
+            stairs.append(block)
     #got some exception error but program continued... might introduce errors later
 
     if len(botlevel) <= 13:
@@ -406,20 +407,12 @@ def make_action(screen, info, step, env, prev_action,gap):
         for block in botlevel:
             if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
                 if prevblock[0][0] <= mario_locations[0][0][0] and mario_locations[0][0][0] <= block[0][0]:
-                    print("GAP HERE")
                     action= 2
             prevblock= block
 
     #-------------------DEALING WITH STAIRS CODE-------------------#
 
-    stairs = []
-    for block in block_locations:
-        if block[2]=="stair":
-            stairs.append(block)
-
     if len(stairs) > 0:
-        print("stair location", stairs)
-        print("MARIO", mario_locations)
         action = 4
         if step % 20 == 0:
             if prev_action == 4:
