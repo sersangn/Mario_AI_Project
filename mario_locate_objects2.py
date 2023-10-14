@@ -369,10 +369,10 @@ def make_action(screen, info, step, env, prev_action,gap):
     ##Code for jumping according to enemy locations
     if len(enemy_locations)>0:
         for enemy in enemy_locations:
+            print(enemy)
+            print(mario_locations)
             if enemy[0][0]>mario_locations[0][0][0]:
-                if(enemy[0][0]-mario_locations[0][0][0]<50) and (enemy[0][1]>=193):
-                    # print(enemy)
-                    # print(mario_locations)
+                if(enemy[0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]>=193):
                     action=4
 
     #-------------------PIPE CODE-------------------#
@@ -404,23 +404,23 @@ def make_action(screen, info, step, env, prev_action,gap):
         prevblock = botlevel[0]
         for block in botlevel:
             if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
-                if prevblock[0][0]+32 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+                if prevblock[0][0] <= mario_locations[0][0][0] and mario_locations[0][0][0] <= block[0][0]:
                     print("GAP HERE")
-                    action= 4
+                    action= 2
             prevblock= block
         
     #-------------------DEALING WITH GAPS CODE - SKY METHOD-------------------#
 
     # print(sky_locations)
 
-    if len(botlevel) <= 13:
-        prevblock = botlevel[0]
-        for block in botlevel:
-            if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
-                if prevblock[0][0]+32 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
-                    print("GAP HERE")
-                    action= 4
-            prevblock= block
+    # if len(botlevel) <= 13:
+    #     prevblock = botlevel[0]
+    #     for block in botlevel:
+    #         if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
+    #             if prevblock[0][0]+32 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+    #                 print("GAP HERE")
+    #                 action= 4
+    #         prevblock= block
 
     #Trying to deal with four goombas
     # if len(enemy_locations)==3:
