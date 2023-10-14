@@ -295,6 +295,7 @@ def make_action(screen, info, step, env, prev_action,gap):
     # List of locations of items: (so far, it only finds mushrooms)
     item_locations = object_locations["item"]
 
+
     # List of locations of sky:
     # sky_locations = object_locations["sky"]
 
@@ -371,6 +372,8 @@ def make_action(screen, info, step, env, prev_action,gap):
         for enemy in enemy_locations:
             if enemy[0][0]>mario_locations[0][0][0]:
                 if(enemy[0][0]-mario_locations[0][0][0]<40) and (enemy[0][1]>=180) and mario_locations[0][0][0] <= enemy[0][0]:
+                    print("IN SECOND IF", enemy)
+                    print("MARIO", mario_locations)
                     action=4
 
     #-------------------PIPE CODE-------------------#
@@ -390,13 +393,13 @@ def make_action(screen, info, step, env, prev_action,gap):
                 continue
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
                 action=2
+
+    #-------------------DEALING WITH GAPS CODE-------------------#
     botlevel = []
     for block in block_locations:
         if block[2]=="floorblock" and block[0][1]==224:
             botlevel.append(block)
     #got some exception error but program continued... might introduce errors later
-
-    #-------------------DEALING WITH GAPS CODE-------------------#
 
     if len(botlevel) <= 13:
         prevblock = botlevel[0]
@@ -406,7 +409,22 @@ def make_action(screen, info, step, env, prev_action,gap):
                     print("GAP HERE")
                     action= 2
             prevblock= block
-        
+
+    #-------------------DEALING WITH STAIRS CODE-------------------#
+
+    stairs = []
+    for block in block_locations:
+        if block[2]=="stair":
+            stairs.append(block)
+
+    if len(stairs) > 0:
+        print("stair location", stairs)
+        print("MARIO", mario_locations)
+        action = 4
+        if step % 20 == 0:
+            if prev_action == 4:
+                action = 0
+
     #-------------------DEALING WITH GAPS CODE - SKY METHOD-------------------#
 
     # print(sky_locations)
@@ -433,7 +451,7 @@ def make_action(screen, info, step, env, prev_action,gap):
 ######Stops mario from always pressing jump and getting stuck
 #--------Every 10 frames you switch action to 0
     if step % 10 == 0:
-        if prev_action == 4:
+        if prev_action == 4 and len(stairs) == 0:
             action = 0
         # print(mario_locations)
     if step % 20 == 0:
@@ -476,8 +494,9 @@ def make_action(screen, info, step, env, prev_action,gap):
     # # if mario_locations[0][0][1]<160:
     # #     action = 0
     # if left:
-    #     action =6
-    print(action)
+    
+    if mario_locations[0][0][1] <= 66:
+        action = 3
     return action, gap
 
 ################################################################################
