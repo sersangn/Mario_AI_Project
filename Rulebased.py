@@ -4,59 +4,32 @@ import gym
 import cv2 as cv
 import numpy as np
 
-# code for locating objects on the screen in super mario bros
-# by Lauren Gee
-
-# Template matching is based on this tutorial:
-# https://docs.opencv.org/4.x/d4/dc6/tutorial_py_template_matching.html
-
-################################################################################
-
 #Screen Height, width and match threshold constants
 SCREEN_HEIGHT   = 240
 SCREEN_WIDTH    = 256
 MATCH_THRESHOLD = 0.9
 
-################################################################################
 # TEMPLATES FOR LOCATING OBJECTS
 
 # ignore sky blue colour when matching templates
 MASK_COLOUR = np.array([252, 136, 104])
-# MASK_COLOUR = np.array([0, 0, 0])
-# (these numbers are [BLUE, GREEN, RED] because opencv uses BGR colour format by default)
-
-# You can add more images to improve the object locator, so that it can locate
-# more things. For best results, paint around the object with the exact shade of
-# blue as the sky colour. (see the given images as examples)
-#
-# Put your image filenames in image_files below, following the same format, and
-# it should work fine.
 
 # filenames for object templates
 image_files = {
     "mario": {
-        "small": ["marioA2copy.png", "marioB2copy.png", "marioC2copy.png", "marioD2copy.png",
-                  "marioE2copy.png", "marioF2copy.png", "marioG.png"],
-        # "small": ["mario-small-right.png", "mario-small-left.png"],
-        "tall": ["tall_marioA.png", "tall_marioB.png", "tall_marioC.png"],
+        "small": ["marioA.png", "marioB.png", "marioC.png", "marioD.png",
+                  "marioE.png", "marioF.png", "marioG.png"],
     },
     "enemy": {
-        # "goomba": ["goomba.png"],
-        "goomba2": ["goomba1.png", "goomba2.png"],
+        "goomba": ["goomba.png"],
         "koopa": ["koopaA.png", "koopaB.png"],
-        # "koopa2": ["koopa1.png", "koopa2.png"],
     },
     "block": {
         "block": ["block1.png", "block3.png"],
-        "floorblock":["rock.png"],
-        # "floorblock":["block2.png"],
+        "floorblock":["block2.png"],
         "stair":["block4.png"],
-        "question_block": ["questionA.png", "questionB.png", "questionC.png"],
         "pipe": ["pipe_upper_section.png", "pipe_lower_section.png"],
     },
-    "item": {
-        "mushroom": ["mushroom_red.png"],
-    }
 }
 
 def _get_template(filename):
@@ -114,7 +87,6 @@ def _locate_object(screen, templates, stop_early=False, threshold=MATCH_THRESHOL
         if stop_early and locations:
             break
     
-    #      [((x,y), (width,height))]
     return [( loc,  locations[loc]) for loc in locations]
 
 def _locate_pipe(screen, threshold=MATCH_THRESHOLD):
@@ -182,9 +154,6 @@ def locate_objects(screen, mario_status):
 
 def make_action(screen, info, step, env, prev_action):
     mario_status = info["status"]
-    stage = info["stage"]
-
-    ### For stage 1:
     object_locations = locate_objects(screen, mario_status)
 
     # List of locations of Mario:
@@ -195,13 +164,12 @@ def make_action(screen, info, step, env, prev_action):
 
     # List of locations of blocks, pipes, etc:
     block_locations = object_locations["block"]
-
-
-    ##For stage 2
     
 
 ################Above code was written by Lauren Gee and modified by us##########################
-################Below code is our rule based agent##########################
+
+
+################ Below code is our rule based agent ##########################
 
     #DEFAULT ACTION
     action = 3
@@ -210,15 +178,11 @@ def make_action(screen, info, step, env, prev_action):
     ##Code for jumping according to enemy locations
     if len(enemy_locations)>0:
         for enemy in enemy_locations:
-            print("ENEMY DETECTED!!", enemy)
-            print("MARIO", mario_locations)
             if enemy[0][0]>mario_locations[0][0][0]: ##dont need this
                 if(enemy[0][0]-mario_locations[0][0][0]<40) and (enemy[0][1]>=180) and mario_locations[0][0][0] <= enemy[0][0]:
-                    print("ACTION!!", enemy)
-                    print(mario_locations)
-                    action=2
+                    action=4
 
-    #-------------------PIPE CODE-------------------#
+    #-------------------PIPE CODE------------------------------#
     pipeindex = 0
     pipelist = []
     pipe = False
@@ -230,11 +194,9 @@ def make_action(screen, info, step, env, prev_action):
     #Code for jumping with pipe
     if pipe:
         for pipeindex in pipelist:
-            # print("pipe", pipeindex, block_locations[pipeindex]) 
             if block_locations[pipeindex][0][0]<mario_locations[0][0][0]:
                 continue
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
-                print("PIPE!!!")
                 action=2
 
     #-------------------DEALING WITH GAPS CODE-------------------#
@@ -245,14 +207,13 @@ def make_action(screen, info, step, env, prev_action):
             botlevel.append(block)
         if block[2]=="stair":
             stairs.append(block)
-    #got some exception error but program continued... might introduce errors later
 
     if len(botlevel) <= 13:
         prevblock = botlevel[0]
         for block in botlevel:
             if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
                 if prevblock[0][0] <= mario_locations[0][0][0] and mario_locations[0][0][0] <= block[0][0]:
-                    print("GAP!!!")
+                    # print("GAP!!!")
                     action= 2
             prevblock= block
 
@@ -262,12 +223,8 @@ def make_action(screen, info, step, env, prev_action):
         for stair in stairs:
             if stair[0][1] == 192 and stair[0][0]>mario_locations[0][0][0]:
                 if(stair[0][0]-mario_locations[0][0][0]<40) and mario_locations[0][0][0] <= stair[0][0]:
-                    print("ACTION!!", stair)
-                    print(mario_locations)
-                    action=2
-        # print(stairs)
-        # print("STAIRS")
-        # action = 4
+                    action=4
+
         if step % 20 == 0:
             if prev_action == 4:
                 action = 0
@@ -285,15 +242,12 @@ def make_action(screen, info, step, env, prev_action):
     #Stops mario from flying off screen when he's at the top of the stairs
     if mario_locations[0][0][1] <= 66:
         action = 3
-    print(action)
-
-    ####Stage 2 code#####
     
     return action
 
 ####################Implementing the rule based agent#################################
 
-env = gym.make("SuperMarioBros-1-2-v0", apply_api_compatibility=True, render_mode="human")
+env = gym.make("SuperMarioBros-v0", apply_api_compatibility=True, render_mode="human")
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
 state = env.reset()
