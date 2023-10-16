@@ -22,6 +22,7 @@ MATCH_THRESHOLD = 0.9
 
 # ignore sky blue colour when matching templates
 MASK_COLOUR = np.array([252, 136, 104])
+# MASK_COLOUR = np.array([0, 0, 0])
 # (these numbers are [BLUE, GREEN, RED] because opencv uses BGR colour format by default)
 
 # You can add more images to improve the object locator, so that it can locate
@@ -34,17 +35,21 @@ MASK_COLOUR = np.array([252, 136, 104])
 # filenames for object templates
 image_files = {
     "mario": {
-        "small": ["marioA.png", "marioB.png", "marioC.png", "marioD.png",
-                  "marioE.png", "marioF.png", "marioG.png"],
+        "small": ["marioA2copy.png", "marioB2copy.png", "marioC2copy.png", "marioD2copy.png",
+                  "marioE2copy.png", "marioF2copy.png", "marioG.png"],
+        # "small": ["mario-small-right.png", "mario-small-left.png"],
         "tall": ["tall_marioA.png", "tall_marioB.png", "tall_marioC.png"],
     },
     "enemy": {
-        "goomba": ["goomba.png"],
+        # "goomba": ["goomba.png"],
+        "goomba2": ["goomba1.png", "goomba2.png"],
         "koopa": ["koopaA.png", "koopaB.png"],
+        # "koopa2": ["koopa1.png", "koopa2.png"],
     },
     "block": {
         "block": ["block1.png", "block3.png"],
-        "floorblock":["block2.png"],
+        "floorblock":["rock.png"],
+        # "floorblock":["block2.png"],
         "stair":["block4.png"],
         "question_block": ["questionA.png", "questionB.png", "questionC.png"],
         "pipe": ["pipe_upper_section.png", "pipe_lower_section.png"],
@@ -177,6 +182,9 @@ def locate_objects(screen, mario_status):
 
 def make_action(screen, info, step, env, prev_action):
     mario_status = info["status"]
+    stage = info["stage"]
+
+    ### For stage 1:
     object_locations = locate_objects(screen, mario_status)
 
     # List of locations of Mario:
@@ -188,6 +196,10 @@ def make_action(screen, info, step, env, prev_action):
     # List of locations of blocks, pipes, etc:
     block_locations = object_locations["block"]
 
+
+    ##For stage 2
+    
+
 ################Above code was written by Lauren Gee and modified by us##########################
 ################Below code is our rule based agent##########################
 
@@ -198,11 +210,13 @@ def make_action(screen, info, step, env, prev_action):
     ##Code for jumping according to enemy locations
     if len(enemy_locations)>0:
         for enemy in enemy_locations:
-            if enemy[0][0]>mario_locations[0][0][0]:
+            print("ENEMY DETECTED!!", enemy)
+            print("MARIO", mario_locations)
+            if enemy[0][0]>mario_locations[0][0][0]: ##dont need this
                 if(enemy[0][0]-mario_locations[0][0][0]<40) and (enemy[0][1]>=180) and mario_locations[0][0][0] <= enemy[0][0]:
-                    print(enemy)
+                    print("ACTION!!", enemy)
                     print(mario_locations)
-                    action=4
+                    action=2
 
     #-------------------PIPE CODE-------------------#
     pipeindex = 0
@@ -245,7 +259,15 @@ def make_action(screen, info, step, env, prev_action):
     #-------------------DEALING WITH STAIRS CODE-------------------#
 
     if len(stairs) > 0:
-        action = 4
+        for stair in stairs:
+            if stair[0][1] == 192 and stair[0][0]>mario_locations[0][0][0]:
+                if(stair[0][0]-mario_locations[0][0][0]<40) and mario_locations[0][0][0] <= stair[0][0]:
+                    print("ACTION!!", stair)
+                    print(mario_locations)
+                    action=2
+        # print(stairs)
+        # print("STAIRS")
+        # action = 4
         if step % 20 == 0:
             if prev_action == 4:
                 action = 0
@@ -264,11 +286,14 @@ def make_action(screen, info, step, env, prev_action):
     if mario_locations[0][0][1] <= 66:
         action = 3
     print(action)
+
+    ####Stage 2 code#####
+    
     return action
 
 ####################Implementing the rule based agent#################################
 
-env = gym.make("SuperMarioBros-v0", apply_api_compatibility=True, render_mode="human")
+env = gym.make("SuperMarioBros-1-2-v0", apply_api_compatibility=True, render_mode="human")
 env = JoypadSpace(env, SIMPLE_MOVEMENT)
 
 state = env.reset()
