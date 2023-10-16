@@ -4,6 +4,14 @@ import gym
 import cv2 as cv
 import numpy as np
 
+# Rule-Based Agent implementation for Gym Super Mario Bros World 1 Level 1
+
+# 23599356 Sersang Ngedup
+# 22957747 Kirsty Straiton
+
+# Template matching is based on this tutorial:
+# https://docs.opencv.org/4.x/d4/dc6/tutorial_py_template_matching.html
+
 #Screen Height, width and match threshold constants
 SCREEN_HEIGHT   = 240
 SCREEN_WIDTH    = 256
