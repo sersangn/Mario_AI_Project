@@ -63,6 +63,7 @@ image_files = {
         "stair":["block4.png"],
         "question_block": ["questionA.png", "questionB.png", "questionC.png"],
         "pipe": ["pipe_upper_section.png", "pipe_lower_section.png"],
+        # "sky": ["sky.png"]
     },
     "item": {
         # Note: The template matcher is colourblind (it's using greyscale),
@@ -294,6 +295,10 @@ def make_action(screen, info, step, env, prev_action,gap):
     # List of locations of items: (so far, it only finds mushrooms)
     item_locations = object_locations["item"]
 
+
+    # List of locations of sky:
+    # sky_locations = object_locations["sky"]
+
     # pipe_locations = []
     # pipe_locations.append(_locate_pipe(screen))
 
@@ -357,9 +362,19 @@ def make_action(screen, info, step, env, prev_action,gap):
     #              action = 2 means press 'right' and 'A' buttons at the same time
     #check if you're in the middle of a manuever - add something to keep track of 
     #step variable -- tells you what time, step+10
-
-        # I have no strategy at the moment, so I'll choose a random action.
+        
+    #DEFAULT ACTION
     action = 3
+    #-------------------ENEMY LOCATION CODE-------------------#
+
+    ##Code for jumping according to enemy locations
+    if len(enemy_locations)>0:
+        for enemy in enemy_locations:
+            if enemy[0][0]>mario_locations[0][0][0]:
+                if(enemy[0][0]-mario_locations[0][0][0]<40) and (enemy[0][1]>=180) and mario_locations[0][0][0] <= enemy[0][0]:
+                    action=4
+
+    #-------------------PIPE CODE-------------------#
     pipeindex = 0
     pipelist = []
     pipe = False
@@ -367,14 +382,8 @@ def make_action(screen, info, step, env, prev_action,gap):
             if 'pipe' in element:
                 pipe = True
                 pipelist.append(index)
-                
-    if len(enemy_locations)>0:
-        for enemy in enemy_locations:
-            if enemy[0][0]>mario_locations[0][0][0]:
-                if(enemy[0][0]-mario_locations[0][0][0]<50) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]<=193) :
-                    print(enemy)
-                    print(mario_locations)
-                    action=4
+
+    #Code for jumping with pipe
     if pipe:
         for pipeindex in pipelist:
             # print("pipe", pipeindex, block_locations[pipeindex]) 
@@ -382,26 +391,60 @@ def make_action(screen, info, step, env, prev_action,gap):
                 continue
             if(block_locations[pipeindex][0][0]-mario_locations[0][0][0]<30):
                 action=2
+
+    #-------------------DEALING WITH GAPS CODE-------------------#
     botlevel = []
+    stairs = []
     for block in block_locations:
         if block[2]=="floorblock" and block[0][1]==224:
             botlevel.append(block)
+        if block[2]=="stair":
+            stairs.append(block)
     #got some exception error but program continued... might introduce errors later
 
-
-    ###GAP CODE
     if len(botlevel) <= 13:
         prevblock = botlevel[0]
         for block in botlevel:
             if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
-                if prevblock[0][0]+16 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
-                    print("HERE")
-                    action= 4
+                if prevblock[0][0] <= mario_locations[0][0][0] and mario_locations[0][0][0] <= block[0][0]:
+                    action= 2
             prevblock= block
-        #Stops mario from jumping twice 
 
+    #-------------------DEALING WITH STAIRS CODE-------------------#
+
+    if len(stairs) > 0:
+        action = 4
+        if step % 20 == 0:
+            if prev_action == 4:
+                action = 0
+
+    #-------------------DEALING WITH GAPS CODE - SKY METHOD-------------------#
+
+    # print(sky_locations)
+
+    # if len(botlevel) <= 13:
+    #     prevblock = botlevel[0]
+    #     for block in botlevel:
+    #         if ((block[0][0] - prevblock[0][0]) !=0 )and ((block[0][0] - prevblock[0][0]!=16)):
+    #             if prevblock[0][0]+32 <= mario_locations[0][0][0] or mario_locations[0][0][0] <= block[0][0]:
+    #                 print("GAP HERE")
+    #                 action= 4
+    #         prevblock= block
+
+    #Trying to deal with four goombas
+    # if len(enemy_locations)==3:
+    #     for enemy in enemy_locations:
+    #         if enemy[0][0]>mario_locations[0][0][0]:
+    #             if(enemy[0][0]-mario_locations[0][0][0]<5) and (mario_locations[0][0][0]<enemy[0][0]) and (enemy[0][1]<=193):
+    #                 print("HEREEEEE")
+    #                 action = 6
+    #                 return action
+
+
+######Stops mario from always pressing jump and getting stuck
+#--------Every 10 frames you switch action to 0
     if step % 10 == 0:
-        if prev_action == 4:
+        if prev_action == 4 and len(stairs) == 0:
             action = 0
         # print(mario_locations)
     if step % 20 == 0:
@@ -413,8 +456,9 @@ def make_action(screen, info, step, env, prev_action,gap):
     #         print(floor)
     # print("MARIO", mario_locations)
     # print("FLOOR", botlevel)
-    #######NEW GAP METHOD#####
 
+    ##-----------------------NEW GAP METHOD------------------------#
+    ##--------DEALING WITH THIS USING THE LENGTH _ NOT THAT GREAT
     # #####OLD GAP METHOD
     # if len(floor) <= 26:
     #     gap=gap+1
@@ -443,8 +487,9 @@ def make_action(screen, info, step, env, prev_action,gap):
     # # if mario_locations[0][0][1]<160:
     # #     action = 0
     # if left:
-    #     action =6
-    print(action)
+    
+    if mario_locations[0][0][1] <= 66:
+        action = 3
     return action, gap
 
 ################################################################################
